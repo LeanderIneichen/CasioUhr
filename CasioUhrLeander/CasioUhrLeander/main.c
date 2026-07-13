@@ -6,6 +6,7 @@
 */
 
 #include "ucBoardDriver.h"
+#pragma GCC optimize 0
 
 
 int main(void)
@@ -26,12 +27,14 @@ int main(void)
     uint8_t tasterModeAlt = 0;
     uint8_t tasterModeFlanke = 0;
     
+    uint8_t stundenMode = 0;
+    
     
     //Arays
     const char * ZeitMode[] = 
     {
-       /*0*/ "AM",
-       /*1*/ "PM",
+       /*0*/ "AM ",
+       /*1*/ "PM ",
        /*2*/ "24h",
     };
     
@@ -41,9 +44,9 @@ int main(void)
         systemTime_ms = getSystemTimeMs  ();
         
         
-        if ((systemTime_ms - timeSecoundsReset) >= 1000)
+        if ((systemTime_ms - timeSecoundsReset) >= 1)
         {
-            timeSecounds = timeSecounds + 1;
+            timeSecounds = timeSecounds + 20;
             timeSecoundsReset = systemTime_ms;
         }
         
@@ -56,9 +59,23 @@ int main(void)
         {
             vierUndZwanzigStundenMode = !vierUndZwanzigStundenMode;
             tasterModeFlanke = 0;
-           // timeSecounds = 0;
         }
         
+        lcdWriteText  (3,0, "HelloWorld");
+        //---------------------------------------------------
+        
+
+        if (!vierUndZwanzigStundenMode)   
+        {
+            stundenMode = 2;              
+        }
+        else                              
+        {
+            if (timeHours < 12)
+            stundenMode = 0;          
+            else
+            stundenMode = 1;          
+        }
         
         //---------------------------------------------------
         
@@ -86,16 +103,9 @@ int main(void)
             }
         
         
-        
-        
-        
-        
-        
-        
-        
         hoursAnzeige = vierUndZwanzigStundenMode ? (timeHours % 12 ) : timeHours;
-//         
-//         lcdWriteText  (0,0 %u)
+             
+        lcdWriteText  (0,0, "%s", ZeitMode[stundenMode]);
         lcdWriteText  (1,0, "%02u : %02u : %02u",hoursAnzeige , timeMinutes, timeSecounds);
         
     }
