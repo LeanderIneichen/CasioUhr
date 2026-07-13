@@ -5,12 +5,15 @@
  * Author : e4Ineich
  */ 
 
-#include <avr/io.h>
+#include "ucBoardDriver.h"
 
 
 int main(void)
 {
-    /* Replace with your application code */
+   initBoard  (1);
+   lcdLight  (255);
+   
+   
     while (1) 
     {
     }
