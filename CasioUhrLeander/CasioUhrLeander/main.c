@@ -29,6 +29,8 @@ int main(void)
     
     uint8_t stundenMode = 0;
     
+    uint8_t wochenTagCounter = 0;
+    
     uint8_t tag = 1;
     
     
@@ -38,6 +40,17 @@ int main(void)
        /*0*/ "AM ",
        /*1*/ "PM ",
        /*2*/ "24h",
+    };
+    
+    const char * WochenTage[] =
+    {
+        /*0*/   "MO",
+        /*1*/   "TU",
+        /*2*/   "WE",
+        /*3*/   "TH",
+        /*4*/   "FR",
+        /*5*/   "SA",
+        /*6*/   "SO",
     };
     
 
@@ -109,11 +122,17 @@ int main(void)
             if (((hoursAnzeige == 23) && (timeMinutes == 59) && (timeSecounds == 59)) || ((hoursAnzeige == 11) && (timeMinutes == 59) && (timeSecounds == 59) && (stundenMode == 1)))
             {
               tag = tag + 1;
+              wochenTagCounter = wochenTagCounter + 1;
             }
         
         if (tag > 31)
         {
             tag = 1; 
+        }
+        
+        if (wochenTagCounter > 6)
+        {
+            wochenTagCounter = 0;
         }
         
         
@@ -122,7 +141,8 @@ int main(void)
              
         lcdWriteText  (0,0, "%s", ZeitMode[stundenMode]);
         lcdWriteText  (1,0, "%02u : %02u : %02u",hoursAnzeige , timeMinutes, timeSecounds);
-        lcdWriteText  (0,5, "%02u",tag);
+        lcdWriteText  (0,7, "%02u",tag);
+        lcdWriteText  (0,4, "%s",WochenTage[wochenTagCounter]);
         
     }
 }
