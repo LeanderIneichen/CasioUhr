@@ -27,6 +27,10 @@ int main(void)
     uint8_t tasterModeAlt = 0;
     uint8_t tasterModeFlanke = 0;
     
+    uint8_t tasterSkipNeu = 0;
+    uint8_t tasterSkipAlt = 0;
+    uint8_t tasterSkipFlanke = 0;
+    
     uint8_t stundenMode = 0;
     
     uint8_t wochenTagCounter = 0;
@@ -34,6 +38,8 @@ int main(void)
     uint8_t tag = 1;
     
     uint8_t tagCounter = 0;
+    
+    uint8_t MonatsCounter = 0;
     
     
     //Arays
@@ -55,20 +61,36 @@ int main(void)
         /*6*/   "SO",
     };
     
-    const char * WochenTagAnzahl[] =
+    const uint8_t WochenTagAnzahl[] =
     {
-        /*0*/   "31",
-        /*1*/   "28",
-        /*2*/   "31",
-        /*3*/   "30",
-        /*4*/   "31",
-        /*5*/   "30",
-        /*6*/   "31",
-        /*7*/   "31",
-        /*8*/   "30",
-        /*9*/   "31",
-        /*10*/  "30",
-        /*11*/  "31",
+        /*0*/   31,
+        /*1*/   28,
+        /*2*/   31,
+        /*3*/   30,
+        /*4*/   31,
+        /*5*/   30,
+        /*6*/   31,
+        /*7*/   31,
+        /*8*/   30,
+        /*9*/   31,
+        /*10*/  30,
+        /*11*/  31,
+    };
+
+    const char * Monat[] =
+    {
+        /*0*/   "Jan",
+        /*1*/   "Feb",
+        /*2*/   "Mar",
+        /*3*/   "Apr",
+        /*4*/   "Mai",
+        /*5*/   "Jun",
+        /*6*/   "Jul",
+        /*7*/   "Aug",
+        /*8*/   "Sep",
+        /*9*/   "Okt",
+        /*10*/  "Nov",
+        /*11*/  "Dez",
     };
 
     while (1)
@@ -76,7 +98,7 @@ int main(void)
         systemTime_ms = getSystemTimeMs  ();
         
         
-        if ((systemTime_ms - timeSecoundsReset) >= 1000)
+        if ((systemTime_ms - timeSecoundsReset) >= 1)
         {
             timeSecounds = timeSecounds + 1;
             timeSecoundsReset = systemTime_ms;
@@ -87,12 +109,22 @@ int main(void)
         tasterModeFlanke = tasterModeNeu && !tasterModeAlt;
         tasterModeAlt = tasterModeNeu;
         
+        tasterSkipNeu = buttonReadPL  (6);
+        
+        tasterSkipFlanke = tasterSkipNeu && !tasterSkipAlt;
+        tasterSkipAlt = tasterSkipNeu;
+        
         if (tasterModeFlanke)
         {
             vierUndZwanzigStundenMode = !vierUndZwanzigStundenMode;
             tasterModeFlanke = 0;
         }
         
+        if (tasterSkipFlanke)
+        {
+            timeHours = 23;
+            timeMinutes = 59;
+        }
         
         //---------------------------------------------------
         
@@ -136,16 +168,17 @@ int main(void)
             
             //-------------------------------------------------------------
             
-            if (((hoursAnzeige == 23) && (timeMinutes == 59) && (timeSecounds == 59)) || ((hoursAnzeige == 11) && (timeMinutes == 59) && (timeSecounds == 59) && (stundenMode == 1)))
-            {
-              tag = tag + 1;
-              wochenTagCounter = wochenTagCounter + 1;
-            }
+        if (((hoursAnzeige == 23) && (timeMinutes == 59) && (timeSecounds == 59)) || ((hoursAnzeige == 11) && (timeMinutes == 59) && (timeSecounds == 59) && (stundenMode == 1)))
+        {
+           tag = tag + 1;
+           wochenTagCounter = wochenTagCounter + 1;
+        }
         
         if (tag > WochenTagAnzahl[tagCounter])
         {
             tag = 1;
             tagCounter = tagCounter + 1; 
+            MonatsCounter = MonatsCounter + 1;
         }
         
         if (wochenTagCounter > 6)
@@ -153,13 +186,18 @@ int main(void)
             wochenTagCounter = 0;
         }
         
-        
+        if ((tagCounter == 11) && (tag > 31))
+        {
+            tagCounter = 0;
+            MonatsCounter = 0;
+        }
         
         hoursAnzeige = vierUndZwanzigStundenMode ? (timeHours % 12 ) : timeHours;
              
         lcdWriteText  (0,0, "%s", ZeitMode[stundenMode]);
-        lcdWriteText  (0,7, "%02u",tag);
+        lcdWriteText  (0,7, "%2u",tag);
         lcdWriteText  (0,4, "%s",WochenTage[wochenTagCounter]);
+        lcdWriteText  (0,10, "%s", Monat[MonatsCounter]);
         lcdWriteText  (1,0, "%02u : %02u : %02u",hoursAnzeige , timeMinutes, timeSecounds);
         
     }
