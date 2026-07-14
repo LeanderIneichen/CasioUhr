@@ -33,6 +33,8 @@ int main(void)
     
     uint8_t tag = 1;
     
+    uint8_t tagCounter = 0;
+    
     
     //Arays
     const char * ZeitMode[] = 
@@ -53,13 +55,28 @@ int main(void)
         /*6*/   "SO",
     };
     
+    const char * WochenTagAnzahl[] =
+    {
+        /*0*/   "31",
+        /*1*/   "28",
+        /*2*/   "31",
+        /*3*/   "30",
+        /*4*/   "31",
+        /*5*/   "30",
+        /*6*/   "31",
+        /*7*/   "31",
+        /*8*/   "30",
+        /*9*/   "31",
+        /*10*/  "30",
+        /*11*/  "31",
+    };
 
     while (1)
     {
         systemTime_ms = getSystemTimeMs  ();
         
         
-        if ((systemTime_ms - timeSecoundsReset) >= 1)
+        if ((systemTime_ms - timeSecoundsReset) >= 1000)
         {
             timeSecounds = timeSecounds + 1;
             timeSecoundsReset = systemTime_ms;
@@ -125,9 +142,10 @@ int main(void)
               wochenTagCounter = wochenTagCounter + 1;
             }
         
-        if (tag > 31)
+        if (tag > WochenTagAnzahl[tagCounter])
         {
-            tag = 1; 
+            tag = 1;
+            tagCounter = tagCounter + 1; 
         }
         
         if (wochenTagCounter > 6)
@@ -140,9 +158,9 @@ int main(void)
         hoursAnzeige = vierUndZwanzigStundenMode ? (timeHours % 12 ) : timeHours;
              
         lcdWriteText  (0,0, "%s", ZeitMode[stundenMode]);
-        lcdWriteText  (1,0, "%02u : %02u : %02u",hoursAnzeige , timeMinutes, timeSecounds);
         lcdWriteText  (0,7, "%02u",tag);
         lcdWriteText  (0,4, "%s",WochenTage[wochenTagCounter]);
+        lcdWriteText  (1,0, "%02u : %02u : %02u",hoursAnzeige , timeMinutes, timeSecounds);
         
     }
 }
