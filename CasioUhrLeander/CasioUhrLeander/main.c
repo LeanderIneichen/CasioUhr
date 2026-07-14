@@ -29,6 +29,8 @@ int main(void)
     
     uint8_t stundenMode = 0;
     
+    uint8_t tag = 1;
+    
     
     //Arays
     const char * ZeitMode[] = 
@@ -46,7 +48,7 @@ int main(void)
         
         if ((systemTime_ms - timeSecoundsReset) >= 1)
         {
-            timeSecounds = timeSecounds + 20;
+            timeSecounds = timeSecounds + 1;
             timeSecoundsReset = systemTime_ms;
         }
         
@@ -61,7 +63,7 @@ int main(void)
             tasterModeFlanke = 0;
         }
         
-        lcdWriteText  (3,0, "HelloWorld");
+        
         //---------------------------------------------------
         
 
@@ -81,13 +83,13 @@ int main(void)
         
 
             
-            if (timeSecounds >= 60)
+            if (timeSecounds == 60)
             {
                 timeMinutes = timeMinutes + 1;
                 timeSecounds = 0;
             }
             
-            if (timeMinutes >= 60)
+            if (timeMinutes == 60)
             {
                 timeHours = timeHours + 1;
                 timeSecounds = 0;
@@ -95,18 +97,32 @@ int main(void)
                 
             }
             
-            if (timeHours >= 24)
+            if (timeHours == 24)
             {
                 timeSecounds = 0;
                 timeMinutes = 0;
                 timeHours = 0;
             }
+            
+            //-------------------------------------------------------------
+            
+            if (((hoursAnzeige == 23) && (timeMinutes == 59) && (timeSecounds == 59)) || ((hoursAnzeige == 11) && (timeMinutes == 59) && (timeSecounds == 59) && (stundenMode == 1)))
+            {
+              tag = tag + 1;
+            }
+        
+        if (tag > 31)
+        {
+            tag = 1; 
+        }
+        
         
         
         hoursAnzeige = vierUndZwanzigStundenMode ? (timeHours % 12 ) : timeHours;
              
         lcdWriteText  (0,0, "%s", ZeitMode[stundenMode]);
         lcdWriteText  (1,0, "%02u : %02u : %02u",hoursAnzeige , timeMinutes, timeSecounds);
+        lcdWriteText  (0,5, "%02u",tag);
         
     }
 }
